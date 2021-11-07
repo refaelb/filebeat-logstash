@@ -22,13 +22,18 @@ logstashPipeline: #{}
       beats {
         port => 5044
       }
-    }  
-    
+    }
+    filter {
+      mutate {
+        gsub => ["message", "\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]", ""]
+      }
+    }
     output {
       elasticsearch {
         hosts => ["http://20.107.202.141:9200"]
         index => "%{[kubernetes][namespace][name]}"
         manage_template => false
+        # template_overwrite => true
         document_type => "%{[@metadata][type]}"
       }
     }
